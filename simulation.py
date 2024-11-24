@@ -1,12 +1,8 @@
-from email.quoprimime import body_length
-
 from vpython import *
+import skater
 #
 # Assumed Body Constants
 #
-head_radius = .1
-head_length = .23
-
 torso_radius = 0.15
 torso_length = 0.50
 
@@ -19,12 +15,25 @@ calf_spring_constant =7000
 
 leg_spring_constant = 14000
 
+#Arm parameters
+brachium_length = .23*1.5
+brachium_radius = .04
+
+forearm_length = brachium_length
+forearm_radius = .03
+
+leg_length = thigh_length+calf_length
+
 body_mass = 80
 g = 9.8
 
-leg_length = thigh_length+calf_length
 #
 scene = canvas(title= "Figure Skater Simulation", background = color.white)
+figure = skater.Skater(torso_radius=torso_radius, torso_length=torso_length, thigh_length= thigh_length, thigh_radius=thigh_radius, calf_length= calf_length, calf_radius=calf_radius, leg_spring_constant=leg_spring_constant,forearm_length=forearm_length, brachium_length=brachium_length, brachium_radius=brachium_radius, forearm_radius= forearm_radius)
+scene.camera.pos = vector(-scene.camera.pos.z, scene.camera.pos.y+1, scene.camera.pos.x)
+scene.camera.axis = (figure.torso.pos - scene.camera.pos)
+scene.autoscale = False
+scene.range = 5
 
 #making lower body
 # left_calf = cylinder(pos = vector(-torso_radius/2,0,0), axis = vector(0,calf_length,0), radius = calf_radius, color = color.green)
@@ -34,44 +43,70 @@ scene = canvas(title= "Figure Skater Simulation", background = color.white)
 # right_thigh = cylinder(pos = vector(right_calf.pos + vector(0,calf_length,0)), axis = vector(0,thigh_length,0), radius  = thigh_radius, color = color.red)
 
 #ground
-ground = box(pos = vector(0,-0.1/2,0), length = 2, width = 2, height = 0.1, color = color.black)
+ground = box(pos = vector(0,-0.1/2,0), length = 2, width = 100, height = 0.1, color = color.black)
 
 
-length = vector(0,leg_length,0)
-#Upper body
-torso = cylinder(pos = length, axis = vector(0,torso_length,0), radius = torso_radius, color = color.blue)
-skater_head = cylinder(pos = torso.pos+vector(0,torso_length,0), axis = vector(0,head_length,0), radius = head_radius, color = color.orange)
-left_leg = cylinder(pos=vector(-torso_radius/2,0,0),axis = torso.pos, radius=thigh_radius, color=color.green, ks = leg_spring_constant)
-right_leg = cylinder(pos=vector(torso_radius/2,0,0),axis = torso.pos, radius=thigh_radius, color=color.green, ks = leg_spring_constant)
+
+
+
 
 #initial stretch
 
-initial_compression  = .3
-torso.pos.y = length.y - initial_compression
-skater_head.pos.y = torso.pos.y + torso_length
-# initial momentum = 0
-torso.mom = vector(0,0,0)
+initial_compression  = vector(0,.3,0)
 
-dt = 0.0005
+horizontal_velocity = 7
+figure.mom = vector(0,0,horizontal_velocity*body_mass)
+figure.squat(initial_compression)
+figure.spring_force = vector(0,0,0)
+
+dt = 0.005
 t = 0.0
 while(True):
-    rate(100)
+    rate(50)
     t += dt
 
     #this assumes massless legs
     gravityforce = body_mass*g*vector(0,-1,0)
 
-    cylinder.force = -left_leg.ks*(torso.pos-length)
-    netforce = gravityforce + cylinder.force
+    figure.spring_force = -leg_spring_constant*(figure.left_leg.axis-vector(0,leg_length,0))
+    netforce = gravityforce + figure.spring_force
+    # netforce = vector(0,0,0)
+    figure.mom += netforce*dt
+    pos_delta = (figure.mom/body_mass)*dt
+    figure.move_body_y(pos_delta, range(4))
+    figure.move_body_z(pos_delta, range(6))
 
-    torso.mom += netforce*dt
-    torso.pos += (torso.mom/body_mass)*dt
-    skater_head.pos += (torso.mom/body_mass)*dt
+    if figure.left_leg.axis.y >= leg_length:
+        if figure.left_leg.pos.y + pos_delta.y <= 0:
+            figure.stretch(pos_delta.y)
+        else:
+            figure.move_body_y(pos_delta, (4,5))
+    else:
+        figure.stretch(pos_delta.y)
 
-    if(torso.pos.y > length.y):
-        left_leg.pos += (torso.mom/body_mass)*dt
-        right_leg.pos += (torso.mom / body_mass) * dt
 
-    left_leg.axis = torso.pos
-    right_leg.axis = torso.pos
+
+
+
+
+
+
+
+
+    # if mag(skater.left_leg.axis) < leg_length:
+    #     skater.stretch(pos_delta)
+    #     if skater.left_leg.axis + pos_delta > leg_length:
+    # else:
+    #     if skater.left_leg.pos.y + pos_delta.y <0:
+    #         skater.left_leg.pos.y = 0
+    #         skater.right_leg.pos.y= 0
+    #         skater.stretch(pos_delta)
+    #     else:
+    #         skater.move_body(pos_delta, (4, 5))
+
+    if(t >10):
+        break
+
+
+
 
