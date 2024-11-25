@@ -69,7 +69,8 @@ dt = 0.005
 t = 0.0
 figure.angmom = vector(0, 2*math.pi*4*body_mass, 0)
 k = 0
-controlled_rate = 50
+controlled_rate = 10
+
 
 while(True):
     rate(controlled_rate)
@@ -77,13 +78,13 @@ while(True):
 
     #this assumes massless legs
     gravityforce = body_mass*g*vector(0,-1,0)
-
     figure.spring_force = -leg_spring_constant*(figure.left_leg.axis-vector(0,leg_length,0))
     netforce = gravityforce + figure.spring_force
-    # netforce = vector(0,0,0)
 
-    angle = mag(figure.angmom / body_mass) * dt
-    figure.rotate_cm(angle)
+
+
+    angle_delta = mag(figure.angmom / figure.moi()) * dt
+    figure.rotate_cm(angle_delta)
 
     figure.mom += netforce*dt
     pos_delta = (figure.mom/body_mass)*dt

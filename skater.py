@@ -76,7 +76,7 @@ class Skater:
     def moi(self):
         moi = 0
         for component in self.body_components:
-            moi += component.mass * (component.pos+component.axis/2 - self.torso.pos)
+            moi += component.mass * (component.pos+component.axis/2).y - self.torso.pos.y**2
         return moi
 
     def arms_in(self, length):
