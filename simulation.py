@@ -7,6 +7,8 @@ import math
 torso_radius = 0.15
 torso_length = 0.50
 torso_mass = 50
+#measured from the vertical
+torso_angle = radians(45)
 
 thigh_length =.4
 calf_length =.4
@@ -17,7 +19,9 @@ calf_spring_constant =7000
 leg_mass= 10
 
 leg_spring_constant = 20000
-leg_angle = radians(60)
+
+#measured from the vertical
+leg_angle = radians(80)
 
 
 #Arm parameters
@@ -37,7 +41,7 @@ g = 9.8
 
 #Setting up scene
 scene = canvas(title= "Figure Skater Simulation", background = color.white)
-figure = skater.Skater(torso_radius=torso_radius, torso_length=torso_length, torso_mass= torso_mass, thigh_length = thigh_length, thigh_radius=thigh_radius, calf_length= calf_length, calf_radius=calf_radius, leg_mass = leg_mass, leg_spring_constant=leg_spring_constant,leg_angle = leg_angle, forearm_length=forearm_length, brachium_length=brachium_length, brachium_radius=brachium_radius, forearm_radius= forearm_radius, arm_mass= arm_mass)
+figure = skater.Skater(torso_radius=torso_radius, torso_length=torso_length, torso_mass= torso_mass, torso_angle = torso_angle, thigh_length=thigh_length, thigh_radius = thigh_radius, calf_length= calf_length, calf_radius=calf_radius, leg_mass = leg_mass, leg_spring_constant=leg_spring_constant,leg_angle = leg_angle, forearm_length=forearm_length, brachium_length=brachium_length, brachium_radius=brachium_radius, forearm_radius= forearm_radius, arm_mass= arm_mass)
 scene.camera.pos = vector(-scene.camera.pos.z, scene.camera.pos.y+1, scene.camera.pos.x)
 print(scene.camera.pos)
 # scene.camera.pos -= vector(10,0,0)
@@ -55,7 +59,7 @@ initial_compression  = vector(0,.3,0)
 
 horizontal_velocity = 7
 figure.mom = vector(0,0,horizontal_velocity*body_mass)
-figure.squat(initial_compression)
+figure.squat(initial_compression, 4)
 figure.spring_force = vector(0,0,0)
 
 dt = 0.005

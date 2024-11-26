@@ -2,7 +2,7 @@ from vpython import *
 import math
 
 class Skater:
-    def __init__(self, torso_radius, torso_length, torso_mass, thigh_length, thigh_radius, calf_length, calf_radius, leg_spring_constant, leg_mass,brachium_length, brachium_radius, leg_angle, forearm_length, forearm_radius, arm_mass):
+    def __init__(self, torso_radius, torso_length, torso_mass, torso_angle,thigh_length, thigh_radius, calf_length, calf_radius, leg_spring_constant, leg_mass,brachium_length, brachium_radius, leg_angle, forearm_length, forearm_radius, arm_mass):
 
         # self.forearm_radius = forearm_radius
         # self.forearm_length = forearm_length
@@ -19,7 +19,7 @@ class Skater:
         self.left_leg = cylinder(pos=vector(-torso_radius / 2, 0, 0), axis=length, radius=thigh_radius, mass = leg_mass,
                                  color=color.green,
                                  ks=leg_spring_constant)
-        self.right_leg = cylinder(pos=vector(torso_radius / 2, self.leg_length, 0) + self.leg_length*vector(0, -sin(leg_angle), cos(leg_angle)), axis=self.leg_length * vector(0, sin(leg_angle), -cos(leg_angle)), radius=thigh_radius, mass = leg_mass,
+        self.right_leg = cylinder(pos=vector(torso_radius / 2, self.leg_length, 0) + self.leg_length*vector(0, -cos(leg_angle), sin(leg_angle)), axis=self.leg_length * vector(0, cos(leg_angle), -sin(leg_angle)), radius=thigh_radius, mass = leg_mass,
                                   color=color.green,
                                   ks=leg_spring_constant)
 
@@ -28,8 +28,8 @@ class Skater:
         self.head_mass = 4
 
         # Upper body
-        self.torso = cylinder(pos=self.left_leg.axis, axis=vector(0, torso_length, 0), radius=torso_radius, mass= torso_mass,color=color.blue)
-        self.head = cylinder(pos=self.torso.pos+self.torso.axis, axis=vector(0, self.head_length, 0),
+        self.torso = cylinder(pos=self.left_leg.axis, axis=torso_length * vector(0, sin(torso_angle), -cos(torso_angle)), radius=torso_radius, mass= torso_mass,color=color.blue)
+        self.head = cylinder(pos=self.torso.pos+self.torso.axis, axis=self.head_length * vector(0, sin(torso_angle), -cos(torso_angle)),
                                radius=self.head_radius, color=color.orange, mass = self.head_mass)
 
         # arms
@@ -60,10 +60,16 @@ class Skater:
             if index in indexes:
                 component.pos.z += pos_delta.z
 
-    def squat(self, compression, i):
-        self.body_components[4].axis -= compression
-        self.body_components[5].axis -= compression
-        self.move_body_y(-compression, range(4))
+    def squat(self, compression, index):
+        self.body_components[index].axis -= compression
+        # self.body_components[5].axis -= compression
+        indicies = [0,1,2,3]
+        if index == 4:
+            indicies += [5]
+        else:
+            indicies.append(index)
+        self.move_body_y(-compression, indicies)
+
 
     def  stretch(self, pos_delta):
         self.body_components[4].axis.y += pos_delta
