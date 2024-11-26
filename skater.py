@@ -2,7 +2,7 @@ from vpython import *
 import math
 
 class Skater:
-    def __init__(self, torso_radius, torso_length, torso_mass, thigh_length, thigh_radius, calf_length, calf_radius, leg_spring_constant, leg_mass,brachium_length, brachium_radius, forearm_length, forearm_radius, arm_mass):
+    def __init__(self, torso_radius, torso_length, torso_mass, thigh_length, thigh_radius, calf_length, calf_radius, leg_spring_constant, leg_mass,brachium_length, brachium_radius, leg_angle, forearm_length, forearm_radius, arm_mass):
 
         # self.forearm_radius = forearm_radius
         # self.forearm_length = forearm_length
@@ -19,7 +19,7 @@ class Skater:
         self.left_leg = cylinder(pos=vector(-torso_radius / 2, 0, 0), axis=length, radius=thigh_radius, mass = leg_mass,
                                  color=color.green,
                                  ks=leg_spring_constant)
-        self.right_leg = cylinder(pos=vector(torso_radius / 2, 0, 0), axis=length, radius=thigh_radius, mass = leg_mass,
+        self.right_leg = cylinder(pos=vector(torso_radius / 2, self.leg_length, 0) + self.leg_length*vector(0, -sin(leg_angle), cos(leg_angle)), axis=self.leg_length * vector(0, sin(leg_angle), -cos(leg_angle)), radius=thigh_radius, mass = leg_mass,
                                   color=color.green,
                                   ks=leg_spring_constant)
 
@@ -60,7 +60,7 @@ class Skater:
             if index in indexes:
                 component.pos.z += pos_delta.z
 
-    def squat(self, compression):
+    def squat(self, compression, i):
         self.body_components[4].axis -= compression
         self.body_components[5].axis -= compression
         self.move_body_y(-compression, range(4))
