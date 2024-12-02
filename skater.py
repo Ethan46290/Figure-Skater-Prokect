@@ -13,6 +13,7 @@ class Skater:
         # self.thigh_radius = thigh_radius
         # self.thigh_length = thigh_length
         # self.torso_length = torso_length
+        self.leg_angle = leg_angle
 
         self.leg_length = calf_length + thigh_length
         length = vector(0, self.leg_length, 0)
@@ -111,4 +112,9 @@ class Skater:
 
 
     def straight(self):
-        return (dot(self.torso.axis, vector(0, 1, 0))) == mag(self.torso.axis)
+        print(
+            dot(self.torso.axis, vector(0, 1, 0)))
+        return (dot(self.torso.axis, vector(0, 1, 0))) >= mag(self.torso.axis)- 0.00001
+
+    def leg_theta(self):
+        return self.leg_angle - math.acos(mag(self.left_leg.axis)/mag(self.right_leg.axis))
