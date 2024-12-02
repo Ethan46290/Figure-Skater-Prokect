@@ -73,7 +73,7 @@ class Skater:
 
     def  stretch(self, pos_delta):
         self.body_components[4].axis.y += pos_delta
-        self.body_components[5].axis.y += pos_delta
+        # self.body_components[5].axis.y += pos_delta
 
     def rotate_cm(self, angle):
         for component in self.body_components:
@@ -95,12 +95,20 @@ class Skater:
             self.body_components[2].axis -= length * norm(self.body_components[2].axis)
             self.body_components[3].axis -= length * norm(self.body_components[3].axis)
 
-# class Arm:
-#     def __init__(self, pos, brachium_length, brachium_radius, forearm_length):
-#         self.pos = pos
-#
+    def prerotate(self, angle):
+        for index, component in enumerate(self.body_components):
+            if index < 4:
+                component.rotate(axis = self.torso.axis, angle = angle, origin = self.torso.pos)
+
+    def straighten(self, angle):
+        rotation_axis = (self.left_leg.pos+self.left_leg.axis) -self.torso.pos
+        # self.torso.rotate(axis = rotation_axis, angle = -angle, origin = self.torso.pos)
+        for index, component in enumerate(self.body_components):
+            if not index == 4:
+                component.rotate(axis = rotation_axis, angle = -angle, origin = self.torso.pos)
+        if self.right_leg.pos.y <=0:
+            self.squat(vector(0,self.right_leg.pos.y,0),4)
 
 
-
-# , forearm_radius, brachium_theta, brachium_phi, forearm_theta, forearm_phi
-
+    def straight(self):
+        return (dot(self.torso.axis, vector(0, 1, 0))) == mag(self.torso.axis)

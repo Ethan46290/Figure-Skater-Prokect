@@ -1,3 +1,4 @@
+from numpy.ma.core import angle
 from vpython import *
 import skater
 import math
@@ -8,7 +9,7 @@ torso_radius = 0.15
 torso_length = 0.50
 torso_mass = 50
 #measured from the vertical
-torso_angle = radians(45)
+torso_angle = radians(30)
 
 thigh_length =.4
 calf_length =.4
@@ -21,7 +22,7 @@ leg_mass= 10
 leg_spring_constant = 20000
 
 #measured from the vertical
-leg_angle = radians(80)
+leg_angle = radians(90) - torso_angle
 
 
 #Arm parameters
@@ -38,6 +39,8 @@ leg_length = thigh_length+calf_length
 
 body_mass = 80
 g = 9.8
+
+# prerotation_angle = radians(-90)
 
 #Setting up scene
 scene = canvas(title= "Figure Skater Simulation", background = color.white)
@@ -56,11 +59,12 @@ ground = box(pos = vector(0,-0.1/2,0), length = 2, width = 100, height = 0.1, co
 
 #initial conditions
 initial_compression  = vector(0,.3,0)
-
 horizontal_velocity = 7
 figure.mom = vector(0,0,horizontal_velocity*body_mass)
 figure.squat(initial_compression, 4)
 figure.spring_force = vector(0,0,0)
+# figure.prerotate(prerotation_angle)
+
 
 dt = 0.005
 t = 0.0
@@ -72,7 +76,12 @@ controlled_rate = 50
 
 while(True):
     rate(controlled_rate)
-    figure.move_body_z(figure.mom/body_mass*dt, range(6))
+    # figure.move_body_z(figure.mom/body_mass*dt, range(6))
+    t += dt
+
+    if not figure.straight() and t > 2:
+        figure.straighten(radians(5))
+
 
 
 
