@@ -13,12 +13,13 @@ class Skater:
         # self.thigh_radius = thigh_radius
         # self.thigh_length = thigh_length
         # self.torso_length = torso_length
+        self.leg_length = calf_length + thigh_length
         self.leg_angle = leg_angle
 
         self.leg_length = calf_length + thigh_length
         length = vector(0, self.leg_length, 0)
         self.left_leg = cylinder(pos=vector(-torso_radius / 2, 0, 0), axis=length, radius=thigh_radius, mass = leg_mass,
-                                 color=color.green,
+                                 color=color.red,
                                  ks=leg_spring_constant)
         self.right_leg = cylinder(pos=vector(torso_radius / 2, self.leg_length, 0) + self.leg_length*vector(0, -cos(leg_angle), sin(leg_angle)), axis=self.leg_length * vector(0, cos(leg_angle), -sin(leg_angle)), radius=thigh_radius, mass = leg_mass,
                                   color=color.green,
@@ -72,13 +73,14 @@ class Skater:
         self.move_body_y(-compression, indicies)
 
 
-    def  stretch(self, pos_delta):
+    def  stretch(self, pos_delta, right_leg = False):
         self.body_components[4].axis.y += pos_delta
-        # self.body_components[5].axis.y += pos_delta
+        if right_leg:
+            self.body_components[5].axis.y += pos_delta
 
     def rotate_cm(self, angle):
         for component in self.body_components:
-            component.rotate(axis = self.torso.axis, angle = angle, origin = self.torso.pos)
+            component.rotate(axis = vector(0, 1,0), angle = angle, origin = self.torso.pos)
 
     def moi(self):
         moi = 0
@@ -101,20 +103,29 @@ class Skater:
             if index < 4:
                 component.rotate(axis = self.torso.axis, angle = angle, origin = self.torso.pos)
 
-    def straighten(self, angle):
+    def straighten(self, angle, amount = 0):
         rotation_axis = (self.left_leg.pos+self.left_leg.axis) -self.torso.pos
         # self.torso.rotate(axis = rotation_axis, angle = -angle, origin = self.torso.pos)
         for index, component in enumerate(self.body_components):
             if not index == 4:
                 component.rotate(axis = rotation_axis, angle = -angle, origin = self.torso.pos)
         if self.right_leg.pos.y <=0:
-            self.squat(vector(0,self.right_leg.pos.y,0),4)
+            self.jump(vector(0,amount,0))
 
+    def jump(self, height):
+        if(mag(self.left_leg.axis) <= self.leg_length):
+            self.left_leg.axis += height
+        else:
+            self.left_leg.pos += height
+        for index, component in enumerate(self.body_components):
+            if not index == 4:
+                component.pos += height
 
     def straight(self):
-        print(
-            dot(self.torso.axis, vector(0, 1, 0)))
-        return (dot(self.torso.axis, vector(0, 1, 0))) >= mag(self.torso.axis)- 0.00001
+        return (dot(self.torso.axis, vector(0, 0, -1))) <=  0.001
 
     def leg_theta(self):
-        return self.leg_angle - math.acos(mag(self.left_leg.axis)/mag(self.right_leg.axis))
+        return self.leg_angle - self.leg_theta_orth()
+
+    def leg_theta_orth(self):
+        return math.acos(mag(self.left_leg.axis)/mag(self.right_leg.axis))
