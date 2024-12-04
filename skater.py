@@ -85,11 +85,15 @@ class Skater:
     def moi(self):
         moi = 0
         for component in self.body_components:
-            moi += component.mass * (component.pos+component.axis/2).y - self.torso.pos.y**2
+            segment_cm = component.pos+component.axis/2
+            r = mag(cross(self.torso.pos - segment_cm,self.torso.axis))/mag(self.torso.axis)
+
+
+            moi += component.mass * r**2
         return moi
 
     def arms_in(self, length):
-        if mag(self.body_components[2].axis)  > 0:
+        if mag(self.body_components[2].axis)  > 0.01:
             self.body_components[2].axis -= length * norm(self.body_components[2].axis)
             self.body_components[3].axis -= length * norm(self.body_components[3].axis)
 

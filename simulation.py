@@ -9,44 +9,46 @@ import math
 #
 
 #torso
-torso_radius = 0.15
-torso_length = 0.50
-torso_mass = 50
+torso_radius = 0.225
+torso_length = 0.525
+torso_mass = 35.4
 #measured from the vertical
 torso_angle = radians(30)
 
 #leg
-thigh_length =.4
-calf_length =.4
-thigh_radius = 0.085
-calf_radius = .0607
+thigh_length =.45
+calf_length =.432
+thigh_radius = 0.088
+calf_radius = .0617
 thigh_spring_constant =7000
 calf_spring_constant =7000
-leg_mass= 10
+leg_mass= 9.888
 leg_length = thigh_length+calf_length
 leg_spring_constant = 20000
 #measured from the vertical
 leg_angle = radians(90) - torso_angle
 
-leg_strength = 2000
+
 
 #Arm parameters
-brachium_length = .23*1.5
-brachium_radius = .04
+brachium_length = .34
+brachium_radius = .061
 
-forearm_length = brachium_length
-forearm_radius = .03
+forearm_length = .36
+forearm_radius = .035
 
 arm_length = forearm_length + brachium_length
-arm_mass = 5
+arm_mass = 3.32
 
-torque = vector(0,5,0)
+
+leg_strength = 2000
+torque = vector(0,203,0)
 
 
 # other parameters
-body_mass = 80
+body_mass = 65.2
 g = 9.8
-t_jump = 0.4
+t_jump = 0.6
 
 prerotation_angle = radians(-90)
 
@@ -94,6 +96,7 @@ theta = figure.leg_theta()
 theta_orth = figure.leg_theta_orth()
 t_1 = 0
 
+
 while(True):
     rate(controlled_rate)
     figure.move_body_z(figure.mom/body_mass*dt, range(6))
@@ -116,7 +119,7 @@ while(True):
         t_1 = t
         break
 
-
+p = 0
 while(True):
     rate(controlled_rate)
     t += dt
@@ -124,13 +127,13 @@ while(True):
     #this assumes massless legs
     gravityforce = body_mass*g*vector(0,-1,0)
     # figure.spring_force = -leg_spring_constant*(figure.left_leg.axis-vector(0,leg_length,0))
-    ground_reaction_force = leg_strength*(1-(t-t_1)/t_jump)*vector(0,1,0)
+    ground_reaction_force = leg_strength*(1-(t-t_1)/t_jump)   *vector(0,1,0)
     if (t-t_1)>t_jump or figure.left_leg.pos.y > 0:
         ground_reaction_force = vector(0,0,0)
 
     netforce = gravityforce + ground_reaction_force
 
-    if(not ground_reaction_force == 0):
+    if(not mag(ground_reaction_force) == 0):
         figure.angmom += torque*dt
 
 
@@ -142,7 +145,7 @@ while(True):
     angle_delta = mag(figure.angmom / figure.moi()) * dt
     figure.rotate_cm(angle_delta)
 
-    if not figure.straight():
+    if not figure.straight() and p ==0:
         # figure.prerotate(angle_delta)
 
         angle_tot += angle_delta
@@ -155,6 +158,7 @@ while(True):
 
 
     else:
+        p = 1
         figure.move_body_y(pos_delta, range(4))
         figure.move_body_y(pos_delta, [5])
 
@@ -172,18 +176,11 @@ while(True):
                 print(t)
                 break
 
-    if figure.left_leg.pos.y > ground.pos.y:
+    if figure.left_leg.pos.y > 0:
         figure.arms_in(arm_length*dt/.1)
     if k==1:
         figure.arms_out(-arm_length*dt/.1)
 
-
-# while(True):
-#     rate(controlled_rate)
-#     figure.arms_out(-arm_length*dt/.1)
-#     figure.move_body_z(pos_delta, range(6))
-#
-#     t += dt
 
 
 
