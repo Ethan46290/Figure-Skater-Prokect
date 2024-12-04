@@ -93,7 +93,7 @@ class Skater:
         return moi
 
     def arms_in(self, length):
-        if mag(self.body_components[2].axis)  > 0.01:
+        if mag(self.body_components[2].axis)  > 0.1:
             self.body_components[2].axis -= length * norm(self.body_components[2].axis)
             self.body_components[3].axis -= length * norm(self.body_components[3].axis)
 
